@@ -1,0 +1,15 @@
+{
+  "originHash" : "0b702db69c0bea2ff725ab862d6fe8305781cc161968036e53b4a43067f7e942",
+  "pins" : [
+    {
+      "identity" : "typewhisperpluginsdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TypeWhisper/TypeWhisperPluginSDK.git",
+      "state" : {
+        "revision" : "d8b3c3a7751a0ffa0225a50ca866bbab2315720e",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
