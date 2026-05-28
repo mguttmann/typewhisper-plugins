@@ -11,11 +11,26 @@ that LLM be Claude, authenticated via the OAuth flow Anthropic provides for Clau
 
 ## Installation
 
-This plugin is not in the official TypeWhisper catalog — you build and install it yourself
-from source. It takes about a minute.
+This plugin is not in the official TypeWhisper catalog. Two ways to install it — pick one.
 
-**Prerequisites:** macOS 14+, Xcode command line tools (`xcode-select --install`), and
-TypeWhisper.app already installed in `/Applications`.
+### Option A — Download the prebuilt bundle (no Xcode needed)
+
+Easiest if you just want to use it. Grab the universal (Apple Silicon + Intel) bundle from
+the latest release:
+
+→ **[Releases](https://github.com/mguttmann/typewhisper-plugins/releases/latest)**
+
+```bash
+# After downloading & unzipping ClaudeOAuthPlugin.bundle (e.g. in ~/Downloads):
+xattr -dr com.apple.quarantine ~/Downloads/ClaudeOAuthPlugin.bundle
+mv ~/Downloads/ClaudeOAuthPlugin.bundle \
+   ~/Library/Application\ Support/TypeWhisper/Plugins/
+```
+
+The `xattr` line clears the download-quarantine flag so macOS will load the ad-hoc-signed
+bundle. Then quit and restart TypeWhisper.
+
+### Option B — Build from source (needs Xcode command line tools)
 
 ```bash
 # 1. Clone this branch (or pull if you already have the repo)
@@ -31,17 +46,15 @@ cd typewhisper-plugins/plugins/claude-oauth
 TypeWhisper's bundled SDK at runtime, ad-hoc code-signs it, and copies it into
 `~/Library/Application Support/TypeWhisper/Plugins/`.
 
-**Then quit and restart TypeWhisper.** The plugin appears under
-*Settings → Plugins → Claude (OAuth Pro/Max)* — activate it and follow the Setup steps below.
+To update later: `git pull`, then run `./install.sh` again.
 
-To update later: `git pull`, then run `./install.sh` again and restart TypeWhisper.
-
-> **First build is slow:** the Swift Package Manager downloads the TypeWhisper SDK on the
+> **First build is slow:** Swift Package Manager downloads the TypeWhisper SDK on the
 > first `./install.sh` run (~30–60 s). Subsequent builds are fast.
->
-> **Gatekeeper:** if macOS refuses to load the freshly built bundle, the ad-hoc signature
-> from `install.sh` normally satisfies it. If you downloaded the repo as a zip rather than
-> cloning, clear quarantine first: `xattr -dr com.apple.quarantine .` inside the repo.
+
+---
+
+Either way: **quit and restart TypeWhisper** afterwards. The plugin then appears under
+*Settings → Plugins → Claude (OAuth Pro/Max)* — activate it and follow the Setup steps below.
 
 ## Setup
 
