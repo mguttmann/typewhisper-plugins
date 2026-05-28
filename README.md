@@ -1,52 +1,58 @@
-# TypeWhisper Community Plugins
+# Claude (OAuth Pro/Max) — TypeWhisper Plugin
 
-Community-maintained plugins for [TypeWhisper](https://typewhisper.com), the speech-to-text app for macOS.
+Use your **Anthropic Claude Pro/Max subscription** as an LLM provider in
+[TypeWhisper](https://typewhisper.com) for text post-processing of dictated text —
+**no API key, no per-token billing.**
 
-## Browse Plugins
+> This is a fork of [TypeWhisper/typewhisper-plugins](https://github.com/TypeWhisper/typewhisper-plugins)
+> that adds the `claude-oauth` plugin. It is **not** part of the official TypeWhisper catalog
+> (see [Heads-up](#heads-up) below for why).
 
-Visit the [Plugin Catalog](https://typewhisper.com/addons) to discover and download plugins.
+## Install
 
-## Submit a Plugin
+### Option A — Download the prebuilt bundle (no Xcode needed)
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on how to submit your plugin.
+1. Download `ClaudeOAuthPlugin-*-macos-universal.bundle.zip` from the
+   **[latest release](../../releases/latest)**.
+2. Unzip it (double-click) → you get `ClaudeOAuthPlugin.bundle`.
+3. Clear the download-quarantine flag and move it into TypeWhisper's plugin folder:
+   ```bash
+   xattr -dr com.apple.quarantine ~/Downloads/ClaudeOAuthPlugin.bundle
+   mv ~/Downloads/ClaudeOAuthPlugin.bundle \
+      ~/Library/Application\ Support/TypeWhisper/Plugins/
+   ```
+4. Quit and restart TypeWhisper.
 
-**Quick overview:**
+### Option B — Build from source (needs Xcode command line tools)
 
-1. Fork this repository
-2. Create your plugin directory under `plugins/your-plugin-slug/`
-3. Add `manifest.json`, `README.md`, `LICENSE`, and your Swift source in `src/`
-4. Open a pull request
-5. CI validates your submission automatically
-6. After review and merge, your plugin is built and published
-
-## Repository Structure
-
-```
-plugins/
-  <plugin-slug>/
-    manifest.json        # Plugin metadata
-    README.md            # Documentation
-    LICENSE              # Plugin license
-    icon.png             # Optional (256x256)
-    src/
-      Package.swift      # Swift package manifest
-      Sources/<Name>/
-        <Name>.swift     # Plugin source code
+```bash
+git clone https://github.com/mguttmann/typewhisper-plugins.git
+cd typewhisper-plugins/plugins/claude-oauth
+./install.sh
 ```
 
-## Plugin Types
+Then quit and restart TypeWhisper.
 
-- **TranscriptionEnginePlugin** - Speech-to-text engines
-- **LLMProviderPlugin** - LLM providers for text processing
-- **PostProcessorPlugin** - Text post-processing pipeline
-- **ActionPlugin** - Custom actions with processed text
+After restarting, activate the plugin under
+*Settings → Plugins → Claude (OAuth Pro/Max)*.
 
-## Resources
+**Full usage, setup steps, model list, and refresh details:**
+see [`plugins/claude-oauth/README.md`](plugins/claude-oauth/README.md).
 
-- [Plugin SDK Documentation](https://typewhisper.com/addons/develop)
-- [TypeWhisperPluginSDK](https://github.com/TypeWhisper/TypeWhisperPluginSDK)
-- [TypeWhisper Website](https://typewhisper.com)
+## Requirements
 
-## License
+- macOS 14.0+ (Apple Silicon or Intel — the prebuilt bundle is universal)
+- TypeWhisper 1.4.0+
+- An active Claude Pro or Claude Max subscription
+- For Option B only: Xcode command line tools (`xcode-select --install`)
 
-Each plugin is licensed individually by its author. See the `LICENSE` file in each plugin directory.
+Tested on macOS only. Windows is untested (see the plugin README).
+
+## Heads-up
+
+This plugin uses the same OAuth client identifier that Claude Code uses internally and
+identifies API requests as Claude Code so that Pro/Max subscriptions accept them. That is
+an **unofficial use of the subscription** under Anthropic's Terms of Service, which is why
+it is not in the official TypeWhisper catalog. It may stop working if Anthropic changes
+their OAuth client policy. Tokens are stored only in the macOS Keychain; no telemetry is
+sent anywhere except `api.anthropic.com` and `platform.claude.com`. Use at your own risk.
