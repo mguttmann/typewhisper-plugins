@@ -108,9 +108,27 @@ and `platform.claude.com`.
 
 ## Platform support
 
-Built and tested on **macOS only** (verified against TypeWhisper 1.4.0). The plugin code
-uses cross-platform Swift plus macOS-specific Keychain access via `HostServices`, so a
-Windows build *should* work in principle through the TypeWhisper Windows plugin SDK — but
-this has **not been tested**. `install.sh` is macOS-only (it does `install_name_tool`
-patching and `codesign`). Windows users would need an equivalent build/packaging step for
-the Windows host. Contributions welcome.
+**macOS only.** Verified against TypeWhisper 1.4.0.
+
+This plugin will **not** run on TypeWhisper for Windows, and it cannot simply be "built on
+Windows" either. The two platforms have entirely separate plugin systems:
+
+| | macOS (this plugin) | Windows |
+|---|---|---|
+| Language | Swift | C# / .NET |
+| UI | SwiftUI | WPF / XAML |
+| Build artifact | `.bundle` (Mach-O dylib) | `.dll` (.NET assembly) |
+| Manifest key | `principalClass` | `assemblyName` + `pluginClass` |
+
+On top of that, this plugin depends on Apple-only frameworks: SwiftUI, AppKit
+(`NSWorkspace`), CryptoKit, Security (`SecRandomCopyBytes`), `os.log`, and the macOS
+Keychain. None of these exist on Windows.
+
+A Windows version would be a **full rewrite in C#** (a `ClaudePlugin.cs`, a XAML settings
+view, and the PKCE/OAuth/refresh logic re-implemented against the Windows plugin SDK), not
+a recompile of this code.
+
+Note: TypeWhisper for Windows already ships an official **Claude** plugin
+(`com.typewhisper.claude`) for API-key-based access. If you want Claude on Windows today,
+use that. A Pro/Max-OAuth equivalent for Windows does not exist yet and would have to be
+written from scratch. Contributions welcome.

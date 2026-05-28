@@ -46,7 +46,11 @@ see [`plugins/claude-oauth/README.md`](plugins/claude-oauth/README.md).
 - An active Claude Pro or Claude Max subscription
 - For Option B only: Xcode command line tools (`xcode-select --install`)
 
-Tested on macOS only. Windows is untested (see the plugin README).
+**macOS only.** TypeWhisper for Windows uses a completely separate C#/.NET plugin system,
+so this Swift plugin cannot run there — not even by rebuilding. A Windows version would be
+a full rewrite in C#. (Windows already has an official API-key-based `Claude` plugin; a
+Pro/Max-OAuth equivalent would have to be written from scratch.) See the
+[plugin README](plugins/claude-oauth/README.md#platform-support) for details.
 
 ## Heads-up
 
