@@ -9,6 +9,40 @@ When TypeWhisper finishes transcribing a voice recording, it can route the text 
 an LLM for post-processing (rewriting, summarising, cleaning up, etc.). This plugin makes
 that LLM be Claude, authenticated via the OAuth flow Anthropic provides for Claude Code.
 
+## Installation
+
+This plugin is not in the official TypeWhisper catalog — you build and install it yourself
+from source. It takes about a minute.
+
+**Prerequisites:** macOS 14+, Xcode command line tools (`xcode-select --install`), and
+TypeWhisper.app already installed in `/Applications`.
+
+```bash
+# 1. Clone this branch (or pull if you already have the repo)
+git clone --branch add-claude-oauth-plugin \
+  https://github.com/mguttmann/typewhisper-plugins.git
+cd typewhisper-plugins/plugins/claude-oauth
+
+# 2. Build + install in one step
+./install.sh
+```
+
+`install.sh` compiles the plugin, wraps it into a `.bundle`, patches it so it finds
+TypeWhisper's bundled SDK at runtime, ad-hoc code-signs it, and copies it into
+`~/Library/Application Support/TypeWhisper/Plugins/`.
+
+**Then quit and restart TypeWhisper.** The plugin appears under
+*Settings → Plugins → Claude (OAuth Pro/Max)* — activate it and follow the Setup steps below.
+
+To update later: `git pull`, then run `./install.sh` again and restart TypeWhisper.
+
+> **First build is slow:** the Swift Package Manager downloads the TypeWhisper SDK on the
+> first `./install.sh` run (~30–60 s). Subsequent builds are fast.
+>
+> **Gatekeeper:** if macOS refuses to load the freshly built bundle, the ad-hoc signature
+> from `install.sh` normally satisfies it. If you downloaded the repo as a zip rather than
+> cloning, clear quarantine first: `xattr -dr com.apple.quarantine .` inside the repo.
+
 ## Setup
 
 1. Open TypeWhisper → *Settings → Plugins → Claude (OAuth Pro/Max)* and activate the plugin.
@@ -57,3 +91,13 @@ and `platform.claude.com`.
 - macOS 14.0+
 - TypeWhisper 1.4.0+
 - An active Claude Pro or Claude Max subscription
+- Xcode command line tools (for building: `xcode-select --install`)
+
+## Platform support
+
+Built and tested on **macOS only** (verified against TypeWhisper 1.4.0). The plugin code
+uses cross-platform Swift plus macOS-specific Keychain access via `HostServices`, so a
+Windows build *should* work in principle through the TypeWhisper Windows plugin SDK — but
+this has **not been tested**. `install.sh` is macOS-only (it does `install_name_tool`
+patching and `codesign`). Windows users would need an equivalent build/packaging step for
+the Windows host. Contributions welcome.

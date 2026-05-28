@@ -1,0 +1,4 @@
+# Build artifacts produced by install.sh / swift build
+build/
+src/.build/
+src/.swiftpm/
