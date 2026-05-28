@@ -3,7 +3,7 @@
   "slug": "claude-oauth",
   "name": "Claude (OAuth Pro/Max)",
   "author": "Manuel Guttmann",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use your Anthropic Claude Pro/Max subscription as an LLM provider for text post-processing.",
   "categories": ["llm"],
   "platforms": ["mac"],

@@ -102,13 +102,24 @@ and `platform.claude.com`.
 ## Requirements
 
 - macOS 14.0+
-- TypeWhisper 1.4.0+
+- TypeWhisper 1.4.0+ (verified on 1.5.0 build 826)
 - An active Claude Pro or Claude Max subscription
 - Xcode command line tools (for building: `xcode-select --install`)
 
+## Troubleshooting
+
+**"Missing SDK compatibility metadata for this TypeWhisper runtime"**
+
+TypeWhisper 1.5.0 started requiring every plugin bundle to declare
+`sdkCompatibilityVersion` in its runtime manifest. Plugin builds before v0.1.1
+shipped a manifest without that field and fail to load on 1.5.0 with this error.
+
+Fix: install **v0.1.1 or newer** — download the latest release bundle, or
+`git pull` and re-run `./install.sh`. Then quit and restart TypeWhisper.
+
 ## Platform support
 
-**macOS only.** Verified against TypeWhisper 1.4.0.
+**macOS only.** Verified against TypeWhisper 1.5.0 (build 826).
 
 This plugin will **not** run on TypeWhisper for Windows, and it cannot simply be "built on
 Windows" either. The two platforms have entirely separate plugin systems:

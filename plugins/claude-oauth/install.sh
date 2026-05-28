@@ -64,7 +64,9 @@ echo "==> Assemble ${BUNDLE_NAME}"
 rm -rf "${BUNDLE_PATH}"
 mkdir -p "${BUNDLE_PATH}/Contents/MacOS" "${BUNDLE_PATH}/Contents/Resources"
 cp "$DYLIB" "${BUNDLE_PATH}/Contents/MacOS/${EXECUTABLE_NAME}"
-cp manifest.json "${BUNDLE_PATH}/Contents/Resources/manifest.json"
+# The bundle must carry the *runtime* manifest (with sdkCompatibilityVersion),
+# not the catalog manifest. TypeWhisper 1.5.0+ rejects bundles without it.
+python3 make-runtime-manifest.py manifest.json "${BUNDLE_PATH}/Contents/Resources/manifest.json"
 
 cat > "${BUNDLE_PATH}/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
