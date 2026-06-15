@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-15T05:28:04.535Z",
+  "plugins": [
+    {
+      "id": "com.guttmann.typewhisper-claude-oauth",
+      "slug": "claude-oauth",
+      "name": "Claude (OAuth Pro/Max)",
+      "author": "mguttmann",
+      "authorUrl": null,
+      "version": "0.1.1",
+      "description": "Use your Anthropic Claude Pro/Max subscription as an LLM provider for text post-processing.",
+      "categories": [
+        "llm"
+      ],
+      "platforms": [
+        "mac"
+      ],
+      "minAppVersion": "1.4.0",
+      "license": "GPL-3.0-only",
+      "homepage": null,
+      "sourceUrl": "https://github.com/mguttmann/typewhisper-plugins/tree/main/plugins/claude-oauth",
+      "icon": "Brain",
+      "iconUrl": null,
+      "apiDocsUrl": null,
+      "readmeUrl": "https://github.com/mguttmann/typewhisper-plugins/raw/main/plugins/claude-oauth/README.md",
+      "downloads": {
+        "mac": {
+          "url": "https://github.com/mguttmann/typewhisper-plugins/releases/download/claude-oauth-v0.1.1/claude-oauth-0.1.1-mac.bundle.zip",
+          "sha256": "",
+          "size": 0
+        }
+      },
+      "publishedAt": "2026-05-28T21:27:40+02:00",
+      "principalClass": "ClaudeOAuthLLMPlugin"
+    }
+  ]
+}

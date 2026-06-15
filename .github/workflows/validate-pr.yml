@@ -1,0 +1,82 @@
+name: Validate PR
+
+on:
+  pull_request:
+    paths:
+      - "plugins/**"
+
+jobs:
+  validate:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed plugins
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- plugins/ | cut -d/ -f2 | sort -u | tr '\n' ' ' | xargs)
+          echo "plugins=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Changed plugins: $CHANGED"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate each changed plugin
+        env:
+          CHANGED_PLUGINS: ${{ steps.changes.outputs.plugins }}
+        run: |
+          set -e
+          for slug in $CHANGED_PLUGINS; do
+            PLUGIN_DIR="plugins/$slug"
+            echo "=== Validating $slug ==="
+
+            for file in manifest.json README.md src/Package.swift LICENSE; do
+              if [ ! -f "$PLUGIN_DIR/$file" ]; then
+                echo "ERROR: Missing required file: $PLUGIN_DIR/$file"
+                exit 1
+              fi
+            done
+            echo "Required files present."
+
+            node scripts/validate-manifest.mjs "$PLUGIN_DIR/manifest.json"
+
+            MANIFEST_SLUG=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['slug'])")
+            if [ "$MANIFEST_SLUG" != "$slug" ]; then
+              echo "ERROR: Manifest slug '$MANIFEST_SLUG' does not match directory '$slug'"
+              exit 1
+            fi
+            echo "Slug matches directory."
+
+            if [ -f "$PLUGIN_DIR/icon.png" ]; then
+              DIMENSIONS=$(sips -g pixelWidth -g pixelHeight "$PLUGIN_DIR/icon.png" 2>/dev/null | grep pixel | awk '{print $2}')
+              WIDTH=$(echo "$DIMENSIONS" | head -1)
+              HEIGHT=$(echo "$DIMENSIONS" | tail -1)
+              if [ "$WIDTH" != "256" ] || [ "$HEIGHT" != "256" ]; then
+                echo "WARNING: icon.png should be 256x256, got ${WIDTH}x${HEIGHT}"
+              else
+                echo "Icon dimensions valid."
+              fi
+            fi
+
+            if git show origin/main:plugins/$slug/manifest.json > /dev/null 2>&1; then
+              MAIN_VERSION=$(git show origin/main:plugins/$slug/manifest.json | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])")
+              PR_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['version'])")
+              if [ "$MAIN_VERSION" = "$PR_VERSION" ]; then
+                echo "ERROR: Version must be bumped. Current: $MAIN_VERSION"
+                exit 1
+              fi
+              echo "Version bumped: $MAIN_VERSION -> $PR_VERSION"
+            fi
+
+            echo "Building $slug..."
+            cd "$PLUGIN_DIR/src"
+            swift build
+            cd -
+            echo "Build successful."
+
+            echo "=== $slug validated ==="
+          done

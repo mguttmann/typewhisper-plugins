@@ -1,0 +1,100 @@
+name: Publish Plugins
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plugins/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed plugins
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- plugins/ | cut -d/ -f2 | sort -u | tr '\n' ' ' | xargs)
+          echo "plugins=$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "Changed plugins: $CHANGED"
+
+      - name: Build and release changed plugins
+        if: steps.changes.outputs.plugins != ''
+        env:
+          CHANGED_PLUGINS: ${{ steps.changes.outputs.plugins }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          for slug in $CHANGED_PLUGINS; do
+            PLUGIN_DIR="plugins/$slug"
+            [ ! -f "$PLUGIN_DIR/manifest.json" ] && continue
+
+            VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['version'])")
+            TAG="${slug}-v${VERSION}"
+
+            if git tag -l "$TAG" | grep -q "$TAG"; then
+              echo "Tag $TAG already exists, skipping $slug"
+              continue
+            fi
+
+            echo "=== Building $slug v$VERSION ==="
+
+            PLATFORMS=$(python3 -c "import json; print(' '.join(json.load(open('$PLUGIN_DIR/manifest.json'))['platforms']))")
+            for platform in $PLATFORMS; do
+              case "$platform" in
+                mac) ./scripts/build-plugin.sh "$PLUGIN_DIR" mac ;;
+                *) echo "Skipping unsupported platform: $platform" ;;
+              esac
+            done
+
+            git tag "$TAG"
+            git push origin "$TAG"
+
+            DESCRIPTION=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['description'])")
+            AUTHOR=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['author'])")
+            PLUG_LICENSE=$(python3 -c "import json; print(json.load(open('$PLUGIN_DIR/manifest.json'))['license'])")
+
+            ASSETS=""
+            for f in dist/${slug}-${VERSION}-*.bundle.zip; do
+              [ -f "$f" ] && ASSETS="$ASSETS $f"
+            done
+
+            if [ -n "$ASSETS" ]; then
+              gh release create "$TAG" $ASSETS \
+                --title "$slug v$VERSION" \
+                --notes "$DESCRIPTION - Author: $AUTHOR - License: $PLUG_LICENSE"
+            fi
+
+            echo "=== Published $slug v$VERSION ==="
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate plugin-index.json
+        run: node scripts/generate-index.mjs
+
+      - name: Commit plugin-index.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add plugin-index.json
+          git diff --cached --quiet || git commit -m "Update plugin-index.json"
+          git push
+
+      - name: Trigger website rebuild
+        if: steps.changes.outputs.plugins != ''
+        env:
+          GH_TOKEN: ${{ secrets.DISPATCH_TOKEN }}
+        run: |
+          gh api repos/TypeWhisper/typewhisper.com/dispatches \
+            -f event_type=release-published

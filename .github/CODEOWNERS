@@ -1,0 +1,7 @@
+# Default owners for all plugin submissions
+* @TypeWhisper/plugin-reviewers
+
+# CI and infrastructure
+/.github/ @TypeWhisper/maintainers
+/scripts/ @TypeWhisper/maintainers
+/manifest-schema.json @TypeWhisper/maintainers

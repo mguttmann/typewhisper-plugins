@@ -1,0 +1,14 @@
+{
+  "id": "com.guttmann.typewhisper-claude-oauth",
+  "slug": "claude-oauth",
+  "name": "Claude (OAuth Pro/Max)",
+  "author": "mguttmann",
+  "version": "0.1.1",
+  "description": "Use your Anthropic Claude Pro/Max subscription as an LLM provider for text post-processing.",
+  "categories": ["llm"],
+  "platforms": ["mac"],
+  "minAppVersion": "1.4.0",
+  "license": "GPL-3.0-only",
+  "principalClass": "ClaudeOAuthLLMPlugin",
+  "icon": "Brain"
+}

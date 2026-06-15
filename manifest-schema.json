@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TypeWhisper Plugin Manifest",
+  "type": "object",
+  "required": [
+    "id",
+    "slug",
+    "name",
+    "author",
+    "version",
+    "description",
+    "categories",
+    "platforms",
+    "minAppVersion",
+    "license",
+    "principalClass"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*\\.[a-z][a-z0-9]*(?:\\.[a-z0-9-]+)+$",
+      "description": "Reverse-domain identifier (e.g. com.developer.plugin-name)"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "URL-safe slug, must match directory name"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version (e.g. 1.2.3)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["transcription", "llm", "action", "post-processing"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["mac", "windows", "ios"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "minAppVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "principalClass": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Must match the @objc(...) annotation on the plugin class"
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "sourceUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "apiDocsUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Lucide icon name for website display"
+    }
+  },
+  "additionalProperties": false
+}
